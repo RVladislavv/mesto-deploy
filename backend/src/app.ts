@@ -4,17 +4,39 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import { errors } from 'celebrate';
-// import cors from 'cors';
+import cors from 'cors';
 import errorHandler from './middlewares/error-handler';
 import { DB_ADDRESS } from './config';
 import routes from './routes';
 
-const { PORT = 3000 } = process.env;
+const { PORT = 3000, ALLOWED_CORS } = process.env;
 const app = express();
 mongoose.connect(DB_ADDRESS);
 
-// Только для локальных тестов. Не используйте это в продакшене
-// app.use(cors())
+const corsFromEnv = ALLOWED_CORS?.split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+const corsOrigins =
+  corsFromEnv && corsFromEnv.length > 0
+    ? corsFromEnv
+    : [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://127.0.0.1:3000',
+        'http://127.0.0.1:3001',
+      ];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || corsOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(null, false);
+    },
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

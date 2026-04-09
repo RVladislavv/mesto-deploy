@@ -8,6 +8,10 @@ interface JwtPayload {
 }
 
 const auth = (req: Request, res: Response, next: NextFunction) => {
+  if (req.method === 'OPTIONS') {
+    next();
+    return;
+  }
   try {
     let token = req.cookies.jwt || req.headers.authorization;
     if (!token) {

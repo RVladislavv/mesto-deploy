@@ -27,7 +27,24 @@ const corsOrigins =
         'http://127.0.0.1:3001',
       ];
 
-app.use(cors({ origin: corsOrigins }));
+/** Фронты *.students.nomorepartiessite.ru (Практикум): на случай опечаток в ALLOWED_CORS */
+const practicumFrontOrigin = /^https:\/\/[a-z0-9-]+\.students\.nomorepartiessite\.ru$/;
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      if (corsOrigins.includes(origin) || practicumFrontOrigin.test(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(null, false);
+    },
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

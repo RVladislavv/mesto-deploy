@@ -53,8 +53,9 @@ module.exports = {
       repo: DEPLOY_REPO,
       path: DEPLOY_PATH,
       'pre-deploy-local': `scp ${path.join(__dirname, '.env')} ${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/source/frontend/.env`,
+      // Без символа " в строке — иначе pm2-deploy обрезает hook при разборе JSON.
       'post-deploy':
-        'export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; cd frontend && npm ci && export NODE_OPTIONS=--openssl-legacy-provider && npm run build',
+        'export NVM_DIR=$HOME/.nvm; [ -s $NVM_DIR/nvm.sh ] && . $NVM_DIR/nvm.sh; cd frontend && npm ci && export NODE_OPTIONS=--openssl-legacy-provider && npm run build',
     },
   },
 };

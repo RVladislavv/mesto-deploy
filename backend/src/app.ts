@@ -13,11 +13,12 @@ const { PORT = 3000, ALLOWED_CORS } = process.env;
 const app = express();
 mongoose.connect(DB_ADDRESS);
 
-const corsFromEnv = ALLOWED_CORS?.split(',')
-  .map((o) => o.trim())
+const corsFromEnv = (ALLOWED_CORS ?? '')
+  .split(',')
+  .map((o) => o.trim().replace(/\r/g, ''))
   .filter(Boolean);
 const corsOrigins =
-  corsFromEnv && corsFromEnv.length > 0
+  corsFromEnv.length > 0
     ? corsFromEnv
     : [
         'http://localhost:3000',
@@ -26,17 +27,7 @@ const corsOrigins =
         'http://127.0.0.1:3001',
       ];
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || corsOrigins.includes(origin)) {
-        callback(null, true);
-        return;
-      }
-      callback(null, false);
-    },
-  }),
-);
+app.use(cors({ origin: corsOrigins }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

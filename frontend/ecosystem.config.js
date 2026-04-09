@@ -54,7 +54,7 @@ module.exports = {
       path: DEPLOY_PATH,
       'pre-deploy-local': `scp ${path.join(__dirname, '.env')} ${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/source/frontend/.env`,
       'post-deploy':
-        'cd frontend && npm ci && export NODE_OPTIONS=--openssl-legacy-provider && npm run build',
+        'export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"; cd frontend && npm ci && export NODE_OPTIONS=--openssl-legacy-provider && npm run build',
     },
   },
 };

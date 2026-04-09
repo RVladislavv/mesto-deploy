@@ -21,6 +21,7 @@ function loadEnvFile(absPath) {
 }
 
 loadEnvFile(path.join(__dirname, '.env.deploy'));
+loadEnvFile(path.join(__dirname, '.env'));
 
 const {
   DEPLOY_USER,
@@ -28,7 +29,12 @@ const {
   DEPLOY_PATH,
   DEPLOY_REF = 'origin/master',
   DEPLOY_REPO,
+  REACT_APP_API_URL,
 } = process.env;
+
+if (!REACT_APP_API_URL) {
+  throw new Error('В frontend/.env задайте REACT_APP_API_URL (URL бэкенда для production-сборки).');
+}
 
 module.exports = {
   apps: [
@@ -53,8 +59,7 @@ module.exports = {
       repo: DEPLOY_REPO,
       path: DEPLOY_PATH,
       'pre-deploy-local': `scp ${path.join(__dirname, '.env')} ${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/source/frontend/.env`,
-      'post-deploy':
-        'export NVM_DIR=$HOME/.nvm; [ -s $NVM_DIR/nvm.sh ] && . $NVM_DIR/nvm.sh; cd frontend && npm ci && export NODE_OPTIONS=--openssl-legacy-provider && npm run build',
+      'post-deploy': `export NVM_DIR=$HOME/.nvm; [ -s $NVM_DIR/nvm.sh ] && . $NVM_DIR/nvm.sh; cd frontend && export REACT_APP_API_URL=${REACT_APP_API_URL} && npm ci && export NODE_OPTIONS=--openssl-legacy-provider && npm run build`,
     },
   },
 };
